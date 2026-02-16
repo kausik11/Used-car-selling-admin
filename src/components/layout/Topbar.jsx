@@ -4,13 +4,13 @@
   return (
     <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
-        <button
+        {/* <button
           type="button"
           onClick={onToggleSidebar}
           className="hidden h-11 rounded-xl border border-slate-200 px-3 text-sm font-medium text-slate-600 hover:bg-slate-100 lg:block"
         >
           Toggle Sidebar
-        </button>
+        </button> */}
         <div className="flex min-w-[260px] flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
           <span className="text-slate-400">Search</span>
           <input

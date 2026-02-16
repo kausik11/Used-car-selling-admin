@@ -90,24 +90,24 @@ function CarsPanel() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 text-sm">
       <section className="rounded-2xl border border-slate-200 bg-slate-100 p-5">
-        <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Overview</p>
-        <h2 className="mt-1 text-5xl font-bold text-slate-900">Car Admin Dashboard</h2>
-        <p className="mt-2 text-xl text-slate-600">Manage car listings with quick create, preview, edit and delete actions.</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Overview</p>
+        <h2 className="mt-1 text-3xl font-bold text-slate-900">Car Admin Dashboard</h2>
+        <p className="mt-2 text-sm text-slate-600">Manage car listings with quick create, preview, edit and delete actions.</p>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => setCreateOpen(true)}
-            className="rounded-xl bg-blue-600 px-6 py-3 text-xl font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-500"
+            className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-500"
           >
             + Create car
           </button>
           <button
             type="button"
             onClick={loadCars}
-            className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-xl font-semibold text-slate-700 transition hover:bg-slate-100"
+            className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
           >
             Refresh list
           </button>
@@ -116,21 +116,21 @@ function CarsPanel() {
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-4xl font-semibold text-slate-900">Car Listings</h3>
+          <h3 className="text-2xl font-semibold text-slate-900">Car Listings</h3>
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search by title, brand, model, city"
-            className="w-full max-w-lg rounded-xl border border-slate-300 bg-white px-4 py-3 text-lg outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            className="w-full max-w-lg rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
           />
         </div>
 
         {error ? <pre className="mb-4 rounded-xl bg-rose-50 p-3 text-xs text-rose-700">{error}</pre> : null}
 
-        {loading ? <p className="text-lg text-slate-500">Loading cars...</p> : null}
+        {loading ? <p className="text-sm text-slate-500">Loading cars...</p> : null}
 
         {!loading && filteredCars.length === 0 ? (
-          <p className="text-lg text-slate-500">No cars found.</p>
+          <p className="text-sm text-slate-500">No cars found.</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filteredCars.map((car) => (
@@ -142,14 +142,14 @@ function CarsPanel() {
                 />
 
                 <div className="mt-3 space-y-1">
-                  <h4 className="line-clamp-1 text-2xl font-semibold text-slate-900">{car.title || 'Untitled car'}</h4>
-                  <p className="text-lg text-slate-600">
+                  <h4 className="line-clamp-1 text-lg font-semibold text-slate-900">{car.title || 'Untitled car'}</h4>
+                  <p className="text-sm text-slate-600">
                     {car.brand} {car.model} {car.variant || ''}
                   </p>
-                  <p className="text-base text-slate-500">
-                    {car.city || 'N/A'} • {car.kms_driven || 0} km
+                  <p className="text-sm text-slate-500">
+                    {car.city || 'N/A'} | {car.kms_driven || 0} km
                   </p>
-                  <p className="text-xl font-bold text-slate-900">₹ {car.price?.amount || 0}</p>
+                  <p className="text-base font-bold text-slate-900">Rs {car.price?.amount || 0}</p>
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -161,21 +161,21 @@ function CarsPanel() {
                   <button
                     type="button"
                     onClick={() => handlePreview(car)}
-                    className="rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                    className="rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                   >
                     Preview
                   </button>
                   <button
                     type="button"
                     onClick={() => handleEdit(car)}
-                    className="rounded-lg bg-amber-500 px-2 py-2 text-sm font-semibold text-white hover:bg-amber-400"
+                    className="rounded-lg bg-amber-500 px-2 py-2 text-xs font-semibold text-white hover:bg-amber-400"
                   >
                     Edit
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDelete(car)}
-                    className="rounded-lg bg-rose-600 px-2 py-2 text-sm font-semibold text-white hover:bg-rose-500"
+                    className="rounded-lg bg-rose-600 px-2 py-2 text-xs font-semibold text-white hover:bg-rose-500"
                   >
                     Delete
                   </button>

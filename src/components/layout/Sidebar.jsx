@@ -1,8 +1,13 @@
+import { HiChevronDoubleLeft, HiChevronDoubleRight } from 'react-icons/hi2';
+import { FiSettings } from 'react-icons/fi';
+import { LuCarFront, LuMessageSquareQuote } from 'react-icons/lu';
+import { RiQuestionnaireLine } from 'react-icons/ri';
+
 const navItems = [
-  { id: 'cars', label: 'Cars', icon: '🚗' },
-  { id: 'reviews', label: 'Reviews', icon: '⭐' },
-  { id: 'faqs', label: 'FAQs', icon: '❓' },
-  { id: 'settings', label: 'Settings', icon: '⚙️' },
+  { id: 'cars', label: 'Cars', Icon: LuCarFront },
+  { id: 'reviews', label: 'Reviews', Icon: LuMessageSquareQuote },
+  { id: 'faqs', label: 'FAQs', Icon: RiQuestionnaireLine },
+  { id: 'settings', label: 'Settings', Icon: FiSettings },
 ];
 
 function Sidebar({ active, onSelect, collapsed, onToggle }) {
@@ -16,7 +21,7 @@ function Sidebar({ active, onSelect, collapsed, onToggle }) {
         {!collapsed ? (
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-500">Admin</p>
-            <h1 className="mt-1 text-2xl font-bold text-slate-900">Dashboard</h1>
+            <h1 className="mt-1 text-xl font-bold text-slate-900">Dashboard</h1>
           </div>
         ) : (
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-500">Admin</p>
@@ -27,13 +32,14 @@ function Sidebar({ active, onSelect, collapsed, onToggle }) {
           className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-600 hover:bg-slate-100"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? '»' : '«'}
+          {collapsed ? <HiChevronDoubleRight className="h-4 w-4" /> : <HiChevronDoubleLeft className="h-4 w-4" />}
         </button>
       </div>
 
       <nav className={`space-y-2 ${collapsed ? 'px-2' : 'px-4'}`}>
         {navItems.map((item) => {
           const selected = active === item.id;
+          const Icon = item.Icon;
           return (
             <button
               key={item.id}
@@ -46,8 +52,10 @@ function Sidebar({ active, onSelect, collapsed, onToggle }) {
                   : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
               } ${collapsed ? 'justify-center px-2' : 'gap-3 px-4 text-left'}`}
             >
-              <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-100 text-sm">{item.icon}</span>
-              {!collapsed ? <span className="text-base font-medium leading-none">{item.label}</span> : null}
+              <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-100 text-sm">
+                <Icon className="h-5 w-5" />
+              </span>
+              {!collapsed ? <span className="text-sm font-medium leading-none">{item.label}</span> : null}
             </button>
           );
         })}
