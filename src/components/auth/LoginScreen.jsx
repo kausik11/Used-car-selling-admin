@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { authApi } from '../../api/client';
-
-const ADMIN_ROLES = ['admin', 'administrator'];
-
-const isAdminRole = (role) => ADMIN_ROLES.includes(String(role || '').toLowerCase());
+import { isAdminRole } from '../../auth/session';
 
 function LoginScreen({ onLogin }) {
   const [email, setEmail] = useState('');
