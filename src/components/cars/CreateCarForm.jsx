@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
 import api from '../../api/client';
 import { CAR_ENUMS, toOptions } from '../../constants/carEnums';
 import CheckboxField from '../common/CheckboxField';
@@ -186,12 +187,18 @@ function CreateCarForm({ compact = false, onSuccess, onCancel, mode = 'create', 
       };
 
       setResponseData(finalResponse);
+      toast.success(isEditMode ? 'Car updated successfully.' : 'Car created successfully.');
       if (onSuccess) onSuccess(finalResponse);
     } catch (error) {
       const apiError = error.response?.data;
+      const message =
+        typeof apiError === 'string'
+          ? apiError
+          : apiError?.error || error.message || 'Unable to submit car form.';
       setErrorMessage(
         typeof apiError === 'string' ? apiError : JSON.stringify(apiError || { error: error.message }, null, 2),
       );
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

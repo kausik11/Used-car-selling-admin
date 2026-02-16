@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
 import api from '../../api/client';
 import Modal from '../common/Modal';
 import CarPreviewModal from './CarPreviewModal';
@@ -19,6 +20,13 @@ function CarsPanel() {
   const [editCarData, setEditCarData] = useState(null);
   const [previewCar, setPreviewCar] = useState(null);
 
+  const getApiErrorMessage = (apiError, fallback) => {
+    const payload = apiError?.response?.data;
+    if (typeof payload === 'string') return payload;
+    if (payload?.error) return payload.error;
+    return fallback || apiError?.message || 'Request failed';
+  };
+
   const loadCars = async () => {
     setLoading(true);
     setError('');
@@ -28,6 +36,7 @@ function CarsPanel() {
     } catch (apiError) {
       const message = apiError.response?.data || { error: apiError.message };
       setError(typeof message === 'string' ? message : JSON.stringify(message, null, 2));
+      toast.error(getApiErrorMessage(apiError, 'Failed to load cars.'));
     } finally {
       setLoading(false);
     }
@@ -70,6 +79,7 @@ function CarsPanel() {
     } catch (apiError) {
       const message = apiError.response?.data || { error: apiError.message };
       setError(typeof message === 'string' ? message : JSON.stringify(message, null, 2));
+      toast.error(getApiErrorMessage(apiError, 'Failed to load car details.'));
       setEditOpen(false);
     } finally {
       setEditLoading(false);
@@ -78,14 +88,19 @@ function CarsPanel() {
 
   const handleDelete = async (car) => {
     const confirmed = window.confirm(`Delete car ${car.title || car.car_id}?`);
-    if (!confirmed) return;
+    if (!confirmed) {
+      toast.warning('Delete canceled.');
+      return;
+    }
 
     try {
       await api.delete(`/cars/${car.car_id}`);
+      toast.success('Car deleted successfully.');
       await loadCars();
     } catch (apiError) {
       const message = apiError.response?.data || { error: apiError.message };
       setError(typeof message === 'string' ? message : JSON.stringify(message, null, 2));
+      toast.error(getApiErrorMessage(apiError, 'Failed to delete car.'));
     }
   };
 
@@ -132,53 +147,62 @@ function CarsPanel() {
         {!loading && filteredCars.length === 0 ? (
           <p className="text-sm text-slate-500">No cars found.</p>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {filteredCars.map((car) => (
-              <article key={car.car_id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <article
+                key={car.car_id}
+                className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
                 <img
                   src={car.media?.images?.[0]?.url || 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7'}
                   alt={car.title || 'Car preview'}
-                  className="h-40 w-full rounded-xl object-cover"
+                  className="h-44 w-full rounded-xl object-cover"
                 />
 
-                <div className="mt-3 space-y-1">
-                  <h4 className="line-clamp-1 text-lg font-semibold text-slate-900">{car.title || 'Untitled car'}</h4>
-                  <p className="text-sm text-slate-600">
-                    {car.brand} {car.model} {car.variant || ''}
-                  </p>
-                  <p className="text-sm text-slate-500">
-                    {car.city || 'N/A'} | {car.kms_driven || 0} km
-                  </p>
-                  <p className="text-base font-bold text-slate-900">Rs {car.price?.amount || 0}</p>
-                </div>
+                <div className="mt-3 flex flex-1 flex-col">
+                  <div className="space-y-1">
+                    <h4 className="line-clamp-1 text-base font-semibold text-slate-900">{car.title || 'Untitled car'}</h4>
+                    <p className="line-clamp-1 text-sm text-slate-600">
+                      {car.brand} {car.model} {car.variant || ''}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {car.city || 'N/A'} | {car.kms_driven || 0} km
+                    </p>
+                    <p className="pt-1 text-base font-bold text-slate-900">Rs {car.price?.amount || 0}</p>
+                  </div>
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="rounded-lg bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">{car.status || 'draft'}</span>
-                  <span className="rounded-lg bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">{car.visibility || 'public'}</span>
-                </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="rounded-lg bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
+                      {car.status || 'draft'}
+                    </span>
+                    <span className="rounded-lg bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+                      {car.visibility || 'public'}
+                    </span>
+                  </div>
 
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handlePreview(car)}
-                    className="rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                  >
-                    Preview
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleEdit(car)}
-                    className="rounded-lg bg-amber-500 px-2 py-2 text-xs font-semibold text-white hover:bg-amber-400"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(car)}
-                    className="rounded-lg bg-rose-600 px-2 py-2 text-xs font-semibold text-white hover:bg-rose-500"
-                  >
-                    Delete
-                  </button>
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handlePreview(car)}
+                      className="rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                    >
+                      Preview
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(car)}
+                      className="rounded-lg bg-amber-500 px-2 py-2 text-xs font-semibold text-white hover:bg-amber-400"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(car)}
+                      className="rounded-lg bg-rose-600 px-2 py-2 text-xs font-semibold text-white hover:bg-rose-500"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}

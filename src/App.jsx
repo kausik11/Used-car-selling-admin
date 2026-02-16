@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { clearSession, persistSession, readSession } from './auth/session';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage';
@@ -18,6 +19,7 @@ function App() {
   const handleLogout = () => {
     clearSession();
     setSession(null);
+    toast.warning('You have been logged out.');
     navigate('/login', { replace: true });
   };
 

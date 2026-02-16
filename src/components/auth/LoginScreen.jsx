@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import { authApi } from '../../api/client';
 import { isAdminRole } from '../../auth/session';
 
@@ -28,14 +29,19 @@ function LoginScreen({ onLogin }) {
 
       if (!isAdminRole(user.role)) {
         setPassword('');
-        setError('Access denied. Only admin or administrator can use this panel.');
+        const accessError = 'Access denied. Only admin or administrator can use this panel.';
+        setError(accessError);
+        toast.warning(accessError);
         return;
       }
 
+      toast.success('Login successful.');
       onLogin({ token, user });
     } catch (requestError) {
       const serverMessage = requestError?.response?.data?.error;
-      setError(serverMessage || requestError.message || 'Unable to login. Please try again.');
+      const loginError = serverMessage || requestError.message || 'Unable to login. Please try again.';
+      setError(loginError);
+      toast.error(loginError);
     } finally {
       setSubmitting(false);
     }
