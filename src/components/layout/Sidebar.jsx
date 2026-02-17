@@ -1,6 +1,6 @@
 import { HiChevronDoubleLeft, HiChevronDoubleRight } from 'react-icons/hi2';
 import { FiSettings } from 'react-icons/fi';
-import { LuCalendarClock, LuCarFront, LuCarTaxiFront, LuHeart, LuMessageSquareQuote, LuPhoneCall } from 'react-icons/lu';
+import { LuCalendarClock, LuCarFront, LuCarTaxiFront, LuHeart, LuMail, LuMessageSquareQuote, LuPhoneCall } from 'react-icons/lu';
 import { RiQuestionnaireLine } from 'react-icons/ri';
 import { HiOutlineUsers } from 'react-icons/hi2';
 
@@ -12,6 +12,7 @@ const navItems = [
   { id: 'reviews', label: 'Reviews', Icon: LuMessageSquareQuote },
   { id: 'loveStories', label: 'Love Stories', Icon: LuHeart },
   { id: 'callbackRequests', label: 'Callback Requests', Icon: LuPhoneCall },
+  { id: 'newsletter', label: 'Newsletter', Icon: LuMail },
   { id: 'faqs', label: 'FAQs', Icon: RiQuestionnaireLine },
   { id: 'settings', label: 'Settings', Icon: FiSettings },
 ];
