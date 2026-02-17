@@ -10,7 +10,6 @@ const CONDITIONS = ['excellent', 'good', 'average', 'needs_work'];
 const STATUSES = ['pending', 'approved', 'rejected', 'sold'];
 
 const initialForm = {
-  title: '',
   brand: '',
   model: '',
   variant: '',
@@ -38,7 +37,6 @@ const initialForm = {
 };
 
 const mapToEditForm = (item) => ({
-  title: item?.title || '',
   brand: item?.brand || '',
   model: item?.model || '',
   variant: item?.variant || '',
@@ -90,7 +88,6 @@ function SellCarsPanel() {
 
   const buildFormData = (form, includeRequiredImages) => {
     const formData = new FormData();
-    formData.append('title', form.title);
     formData.append('brand', form.brand);
     formData.append('model', form.model);
     formData.append('variant', form.variant);
@@ -238,7 +235,6 @@ function SellCarsPanel() {
 
   const renderForm = (form, onChange) => (
     <div className="grid gap-3 md:grid-cols-2">
-      <input name="title" value={form.title} onChange={onChange} placeholder="Title" required className="rounded-lg border border-slate-300 px-3 py-2 text-sm md:col-span-2" />
       <input name="brand" value={form.brand} onChange={onChange} placeholder="Brand" required className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
       <input name="model" value={form.model} onChange={onChange} placeholder="Model" required className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
       <input name="variant" value={form.variant} onChange={onChange} placeholder="Variant" required className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
