@@ -185,7 +185,7 @@ function CallbackRequestsPanel() {
           </select>
           <input value={emailFilter} onChange={(e) => setEmailFilter(e.target.value)} placeholder="Filter by email" className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
           <input value={phoneFilter} onChange={(e) => setPhoneFilter(e.target.value)} placeholder="Filter by phone" className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          <button type="button" onClick={loadItems} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+          <button type="button" onClick={loadItems} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-500">
             Apply Filter
           </button>
         </div>
@@ -205,13 +205,13 @@ function CallbackRequestsPanel() {
                 <p className="mt-1 text-xs capitalize text-slate-700">Status: {item.status}</p>
                 <p className="mt-2 line-clamp-3 text-xs text-slate-600">{item.description || 'No description'}</p>
                 <div className="mt-4 grid grid-cols-3 gap-2">
-                  <button type="button" onClick={() => openDetail(item._id)} className="rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                  <button type="button" onClick={() => openDetail(item._id)} className="rounded-lg border border-sky-200 bg-sky-50 px-2 py-2 text-xs font-semibold text-sky-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-sky-100 hover:text-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-200 focus:ring-offset-1 active:translate-y-[1px]">
                     View
                   </button>
-                  <button type="button" onClick={() => openEdit(item._id)} className="rounded-lg bg-amber-500 px-2 py-2 text-xs font-semibold text-white hover:bg-amber-400">
+                  <button type="button" onClick={() => openEdit(item._id)} className="rounded-lg border border-amber-200 bg-amber-50 px-2 py-2 text-xs font-semibold text-amber-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-100 hover:text-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-1 active:translate-y-[1px]">
                     Edit
                   </button>
-                  <button type="button" onClick={() => handleDelete(item)} className="rounded-lg bg-rose-600 px-2 py-2 text-xs font-semibold text-white hover:bg-rose-500">
+                  <button type="button" onClick={() => handleDelete(item)} className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-2 text-xs font-semibold text-rose-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-rose-100 hover:text-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-200 focus:ring-offset-1 active:translate-y-[1px]">
                     Delete
                   </button>
                 </div>
@@ -297,3 +297,4 @@ function CallbackRequestsPanel() {
 }
 
 export default CallbackRequestsPanel;
+

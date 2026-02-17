@@ -324,7 +324,7 @@ function TestDrivesPanel() {
               <option key={status} value={status}>{status}</option>
             ))}
           </select>
-          <button type="button" onClick={loadItems} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Apply Filter</button>
+          <button type="button" onClick={loadItems} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-500">Apply Filter</button>
         </div>
 
         {loading ? <p className="text-sm text-slate-500">Loading test drive bookings...</p> : null}
@@ -348,21 +348,21 @@ function TestDrivesPanel() {
                       setDetailItem(item);
                       setDetailOpen(true);
                     }}
-                    className="rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                    className="rounded-lg border border-sky-200 bg-sky-50 px-2 py-2 text-xs font-semibold text-sky-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-sky-100 hover:text-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-200 focus:ring-offset-1 active:translate-y-[1px]"
                   >
                     View
                   </button>
                   <button
                     type="button"
                     onClick={() => openEdit(item)}
-                    className="rounded-lg bg-amber-500 px-2 py-2 text-xs font-semibold text-white hover:bg-amber-400"
+                    className="rounded-lg border border-amber-200 bg-amber-50 px-2 py-2 text-xs font-semibold text-amber-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-100 hover:text-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-1 active:translate-y-[1px]"
                   >
                     Edit
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDelete(item)}
-                    className="rounded-lg bg-rose-600 px-2 py-2 text-xs font-semibold text-white hover:bg-rose-500"
+                    className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-2 text-xs font-semibold text-rose-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-rose-100 hover:text-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-200 focus:ring-offset-1 active:translate-y-[1px]"
                   >
                     Delete
                   </button>
@@ -377,7 +377,7 @@ function TestDrivesPanel() {
         <h3 className="text-lg font-semibold text-slate-900">Bookings By Car</h3>
         <div className="mt-3 flex flex-wrap gap-2">
           <input value={carLookupId} onChange={(e) => setCarLookupId(e.target.value)} placeholder="Enter car_id" className="w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          <button type="button" onClick={handleLookupByCar} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Fetch</button>
+          <button type="button" onClick={handleLookupByCar} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-500">Fetch</button>
         </div>
         {carLookupLoading ? <p className="mt-3 text-sm text-slate-500">Loading by car...</p> : null}
         {carLookupResult?.items?.length > 0 ? (
@@ -396,7 +396,7 @@ function TestDrivesPanel() {
         <div className="mt-3 grid gap-2 md:grid-cols-3">
           <input value={slotCarId} onChange={(e) => setSlotCarId(e.target.value)} placeholder="car_id" className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
           <input type="date" value={slotDate} onChange={(e) => setSlotDate(e.target.value)} className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          <button type="button" onClick={handleLookupSlots} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Check Slots</button>
+          <button type="button" onClick={handleLookupSlots} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-500">Check Slots</button>
         </div>
         {slotLoading ? <p className="mt-3 text-sm text-slate-500">Loading slots...</p> : null}
         {slotResult?.slots?.length > 0 ? (
@@ -528,3 +528,4 @@ function TestDrivesPanel() {
 }
 
 export default TestDrivesPanel;
+

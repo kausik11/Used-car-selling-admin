@@ -10,6 +10,7 @@ const navItems = [
   { id: 'testDrives', label: 'Test Drives', Icon: LuCalendarClock },
   { id: 'users', label: 'Users', Icon: HiOutlineUsers },
   { id: 'reviews', label: 'Reviews', Icon: LuMessageSquareQuote },
+  { id: 'testimonials', label: 'Testimonials', Icon: LuMessageSquareQuote },
   { id: 'loveStories', label: 'Love Stories', Icon: LuHeart },
   { id: 'callbackRequests', label: 'Callback Requests', Icon: LuPhoneCall },
   { id: 'newsletter', label: 'Newsletter', Icon: LuMail },

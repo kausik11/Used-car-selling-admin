@@ -35,6 +35,15 @@ const createEditForm = (user) => ({
   password: '',
 });
 
+const ACTION_BUTTON_BASE =
+  'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 active:translate-y-[1px]';
+const ACTION_BUTTON_VIEW =
+  `${ACTION_BUTTON_BASE} border border-sky-200 bg-sky-50 text-sky-700 shadow-sm hover:-translate-y-0.5 hover:bg-sky-100 hover:text-sky-800 focus:ring-sky-200`;
+const ACTION_BUTTON_EDIT =
+  `${ACTION_BUTTON_BASE} border border-amber-200 bg-amber-50 text-amber-700 shadow-sm hover:-translate-y-0.5 hover:bg-amber-100 hover:text-amber-800 focus:ring-amber-200`;
+const ACTION_BUTTON_DELETE =
+  `${ACTION_BUTTON_BASE} border border-rose-200 bg-rose-50 text-rose-700 shadow-sm hover:-translate-y-0.5 hover:bg-rose-100 hover:text-rose-800 focus:ring-rose-200`;
+
 function UsersPanel({ currentUser, onSessionUserUpdate }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -392,28 +401,28 @@ function UsersPanel({ currentUser, onSessionUserUpdate }) {
                           <button
                             type="button"
                             onClick={() => openUserDetails(userId)}
-                            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                            className={ACTION_BUTTON_VIEW}
                           >
                             View
                           </button>
                           <button
                             type="button"
                             onClick={() => openEdit(userId)}
-                            className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-400"
+                            className={ACTION_BUTTON_EDIT}
                           >
                             Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => openRecentViews(user)}
-                            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                            className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-sky-100 hover:text-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-200 focus:ring-offset-1 active:translate-y-[1px]"
                           >
                             Recent Views
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDelete(user)}
-                            className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-500"
+                            className={ACTION_BUTTON_DELETE}
                           >
                             Delete
                           </button>
@@ -679,3 +688,4 @@ function UsersPanel({ currentUser, onSessionUserUpdate }) {
 }
 
 export default UsersPanel;
+
