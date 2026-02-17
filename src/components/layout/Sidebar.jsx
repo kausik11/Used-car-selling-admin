@@ -1,6 +1,6 @@
 import { HiChevronDoubleLeft, HiChevronDoubleRight } from 'react-icons/hi2';
 import { FiSettings } from 'react-icons/fi';
-import { LuCarFront, LuMessageSquareQuote } from 'react-icons/lu';
+import { LuCarFront, LuHeart, LuMessageSquareQuote } from 'react-icons/lu';
 import { RiQuestionnaireLine } from 'react-icons/ri';
 import { HiOutlineUsers } from 'react-icons/hi2';
 
@@ -8,6 +8,7 @@ const navItems = [
   { id: 'cars', label: 'Cars', Icon: LuCarFront },
   { id: 'users', label: 'Users', Icon: HiOutlineUsers },
   { id: 'reviews', label: 'Reviews', Icon: LuMessageSquareQuote },
+  { id: 'loveStories', label: 'Love Stories', Icon: LuHeart },
   { id: 'faqs', label: 'FAQs', Icon: RiQuestionnaireLine },
   { id: 'settings', label: 'Settings', Icon: FiSettings },
 ];

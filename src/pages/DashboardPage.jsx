@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import CarsPanel from '../components/cars/CarsPanel';
 import Sidebar from '../components/layout/Sidebar';
+import LoveStoriesPanel from '../components/loveStories/LoveStoriesPanel';
 import Topbar from '../components/layout/Topbar';
 import ReviewsPanel from '../components/reviews/ReviewsPanel';
 import UsersPanel from '../components/users/UsersPanel';
@@ -30,8 +31,9 @@ function DashboardPage({ session, onLogout, onSessionUserUpdate }) {
             <div className="mx-auto w-full max-w-[1420px]">
               {activePanel === 'cars' ? <CarsPanel /> : null}
               {activePanel === 'reviews' ? <ReviewsPanel /> : null}
+              {activePanel === 'loveStories' ? <LoveStoriesPanel /> : null}
               {activePanel === 'users' ? <UsersPanel currentUser={session.user} onSessionUserUpdate={onSessionUserUpdate} /> : null}
-              {!['cars', 'users', 'reviews'].includes(activePanel) ? (
+              {!['cars', 'users', 'reviews', 'loveStories'].includes(activePanel) ? (
                 <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
                   <h2 className="text-2xl font-semibold capitalize text-slate-900">{activePanel}</h2>
                   <p className="mt-2 text-sm text-slate-500">This section is coming soon.</p>
