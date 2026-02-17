@@ -124,25 +124,31 @@ function CreateCarForm({ compact = false, onSuccess, onCancel, mode = 'create', 
       }
 
       if (hasFileUploads) {
-        payload.media = {
-          images: [
-            {
+        if (isEditMode) {
+          // Prevent overwriting existing media during edit.
+          // File uploads are handled only by POST /cars/:car_id/media below.
+          delete payload.media;
+        } else {
+          payload.media = {
+            images: [
+              {
+                url:
+                  form.primary_image_url ||
+                  'https://dummyimage.com/1200x800/cccccc/111111.jpg&text=media+upload+pending',
+                view_type: 'gallery',
+                gallery_category: 'other',
+                kind: 'other',
+                sort_order: 1,
+              },
+            ],
+            inspection_report: {
               url:
-                form.primary_image_url ||
-                'https://dummyimage.com/1200x800/cccccc/111111.jpg&text=media+upload+pending',
-              view_type: 'gallery',
-              gallery_category: 'other',
-              kind: 'other',
-              sort_order: 1,
+                form.inspection_report_url ||
+                'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+              type: form.inspection_report_type || 'pdf',
             },
-          ],
-          inspection_report: {
-            url:
-              form.inspection_report_url ||
-              'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-            type: form.inspection_report_type || 'pdf',
-          },
-        };
+          };
+        }
       }
 
       let primaryResponse;
@@ -161,7 +167,6 @@ function CreateCarForm({ compact = false, onSuccess, onCancel, mode = 'create', 
         const mediaFormData = new FormData();
 
         imageUploads.forEach((item, index) => {
-          mediaFormData.append('images', item.file);
           mediaFormData.append(`images_view_type_${index}`, item.view_type || 'gallery');
           mediaFormData.append(
             `images_gallery_category_${index}`,
@@ -170,6 +175,7 @@ function CreateCarForm({ compact = false, onSuccess, onCancel, mode = 'create', 
           if ((item.view_type || 'gallery') === 'gallery') {
             mediaFormData.append(`images_kind_${index}`, item.kind || item.gallery_category || 'other');
           }
+          mediaFormData.append('images', item.file);
         });
 
         if (reportFile) {

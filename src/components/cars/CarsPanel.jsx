@@ -19,6 +19,20 @@ function CarsPanel() {
   const [selectedCar, setSelectedCar] = useState(null);
   const [editCarData, setEditCarData] = useState(null);
   const [previewCar, setPreviewCar] = useState(null);
+  const [slugLookup, setSlugLookup] = useState({
+    city: '',
+    brand: '',
+    model: '',
+    car_slug: '',
+    listing_ref: '',
+  });
+  const [slugLoading, setSlugLoading] = useState(false);
+
+  const [mediaOpen, setMediaOpen] = useState(false);
+  const [mediaCar, setMediaCar] = useState(null);
+  const [mediaSubmitting, setMediaSubmitting] = useState(false);
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [reportFile, setReportFile] = useState(null);
 
   const getApiErrorMessage = (apiError, fallback) => {
     const payload = apiError?.response?.data;
@@ -104,6 +118,73 @@ function CarsPanel() {
     }
   };
 
+  const handleSlugLookupChange = (event) => {
+    const { name, value } = event.target;
+    setSlugLookup((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleFetchBySlug = async () => {
+    if (!slugLookup.city || !slugLookup.brand || !slugLookup.model || !slugLookup.car_slug || !slugLookup.listing_ref) {
+      toast.error('city, brand, model, car_slug and listing_ref are required for slug lookup.');
+      return;
+    }
+
+    setSlugLoading(true);
+    try {
+      const response = await api.get(
+        `/buy-used-cars/${encodeURIComponent(slugLookup.city)}/${encodeURIComponent(slugLookup.brand)}/${encodeURIComponent(slugLookup.model)}/${encodeURIComponent(slugLookup.car_slug)}/${encodeURIComponent(slugLookup.listing_ref)}`,
+      );
+      setPreviewCar(response.data);
+      setPreviewOpen(true);
+      toast.success('Car loaded by slug route.');
+    } catch (apiError) {
+      toast.error(getApiErrorMessage(apiError, 'Failed to fetch car by slug.'));
+    } finally {
+      setSlugLoading(false);
+    }
+  };
+
+  const openMediaUpload = (car) => {
+    setMediaCar(car);
+    setMediaFiles([]);
+    setReportFile(null);
+    setMediaOpen(true);
+  };
+
+  const handleMediaUpload = async (event) => {
+    event.preventDefault();
+    if (!mediaCar?.car_id) return;
+    if (mediaFiles.length === 0 && !reportFile) {
+      toast.error('Choose at least one image or an inspection report file.');
+      return;
+    }
+
+    const formData = new FormData();
+    mediaFiles.forEach((file, index) => {
+      formData.append(`images_view_type_${index}`, 'gallery');
+      formData.append(`images_gallery_category_${index}`, 'other');
+      formData.append(`images_kind_${index}`, 'other');
+      formData.append('images', file);
+    });
+    if (reportFile) {
+      formData.append('inspection_report', reportFile);
+    }
+
+    setMediaSubmitting(true);
+    try {
+      await api.post(`/cars/${mediaCar.car_id}/media`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast.success('Media uploaded successfully.');
+      setMediaOpen(false);
+      loadCars();
+    } catch (apiError) {
+      toast.error(getApiErrorMessage(apiError, 'Failed to upload media.'));
+    } finally {
+      setMediaSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-5 text-sm">
       <section className="rounded-2xl border border-slate-200 bg-slate-100 p-5">
@@ -130,6 +211,55 @@ function CarsPanel() {
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="mb-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Lookup By Slug Route</p>
+          <div className="mt-3 grid gap-2 md:grid-cols-5">
+            <input
+              name="city"
+              value={slugLookup.city}
+              onChange={handleSlugLookupChange}
+              placeholder="city"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+            <input
+              name="brand"
+              value={slugLookup.brand}
+              onChange={handleSlugLookupChange}
+              placeholder="brand"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+            <input
+              name="model"
+              value={slugLookup.model}
+              onChange={handleSlugLookupChange}
+              placeholder="model"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+            <input
+              name="car_slug"
+              value={slugLookup.car_slug}
+              onChange={handleSlugLookupChange}
+              placeholder="car_slug"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+            <input
+              name="listing_ref"
+              value={slugLookup.listing_ref}
+              onChange={handleSlugLookupChange}
+              placeholder="listing_ref"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleFetchBySlug}
+            disabled={slugLoading}
+            className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {slugLoading ? 'Loading...' : 'Fetch by slug'}
+          </button>
+        </div>
+
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-2xl font-semibold text-slate-900">Car Listings</h3>
           <input
@@ -180,7 +310,7 @@ function CarsPanel() {
                     </span>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="mt-4 grid grid-cols-4 gap-2">
                     <button
                       type="button"
                       onClick={() => handlePreview(car)}
@@ -202,6 +332,13 @@ function CarsPanel() {
                     >
                       Delete
                     </button>
+                    {/* <button
+                      type="button"
+                      onClick={() => openMediaUpload(car)}
+                      className="rounded-lg bg-blue-600 px-2 py-2 text-xs font-semibold text-white transition-colors duration-200 hover:bg-blue-500"
+                    >
+                      Media
+                    </button> */}
                   </div>
                 </div>
               </article>
@@ -241,6 +378,50 @@ function CarsPanel() {
       </Modal>
 
       <CarPreviewModal open={previewOpen} car={previewCar} onClose={() => setPreviewOpen(false)} />
+
+      <Modal open={mediaOpen} title={`Upload Media${mediaCar?.title ? ` - ${mediaCar.title}` : ''}`} onClose={() => setMediaOpen(false)} widthClass="max-w-2xl">
+        <form onSubmit={handleMediaUpload} className="space-y-3">
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-slate-700">Images (multiple)</span>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(event) => setMediaFiles(Array.from(event.target.files || []))}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-slate-700">Inspection report (optional)</span>
+            <input
+              type="file"
+              accept=".pdf,image/*"
+              onChange={(event) => setReportFile(event.target.files?.[0] || null)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+          </label>
+          <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+            <p>Selected images: {mediaFiles.length}</p>
+            <p>Report: {reportFile?.name || 'none'}</p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setMediaOpen(false)}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors duration-200 hover:bg-slate-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={mediaSubmitting}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {mediaSubmitting ? 'Uploading...' : 'Upload Media'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
