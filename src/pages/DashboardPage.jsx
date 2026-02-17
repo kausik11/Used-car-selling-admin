@@ -5,6 +5,7 @@ import Sidebar from '../components/layout/Sidebar';
 import LoveStoriesPanel from '../components/loveStories/LoveStoriesPanel';
 import SellCarsPanel from '../components/sellCars/SellCarsPanel';
 import TestDrivesPanel from '../components/testDrives/TestDrivesPanel';
+import CallbackRequestsPanel from '../components/callbackRequests/CallbackRequestsPanel';
 import Topbar from '../components/layout/Topbar';
 import ReviewsPanel from '../components/reviews/ReviewsPanel';
 import UsersPanel from '../components/users/UsersPanel';
@@ -38,8 +39,9 @@ function DashboardPage({ session, onLogout, onSessionUserUpdate }) {
               {activePanel === 'faqs' ? <FaqsPanel /> : null}
               {activePanel === 'reviews' ? <ReviewsPanel /> : null}
               {activePanel === 'loveStories' ? <LoveStoriesPanel /> : null}
+              {activePanel === 'callbackRequests' ? <CallbackRequestsPanel /> : null}
               {activePanel === 'users' ? <UsersPanel currentUser={session.user} onSessionUserUpdate={onSessionUserUpdate} /> : null}
-              {!['cars', 'sellCars', 'testDrives', 'users', 'reviews', 'loveStories', 'faqs'].includes(activePanel) ? (
+              {!['cars', 'sellCars', 'testDrives', 'users', 'reviews', 'loveStories', 'faqs', 'callbackRequests'].includes(activePanel) ? (
                 <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
                   <h2 className="text-2xl font-semibold capitalize text-slate-900">{activePanel}</h2>
                   <p className="mt-2 text-sm text-slate-500">This section is coming soon.</p>

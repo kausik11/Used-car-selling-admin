@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import api from '../../api/client';
+import api, { authApi } from '../../api/client';
+import { persistSession } from '../../auth/session';
 import Modal from '../common/Modal';
+
+const OTP_EXPIRY_SECONDS = 10 * 60;
 
 const createInitialUserForm = {
   name: '',
@@ -46,17 +49,33 @@ function UsersPanel({ currentUser, onSessionUserUpdate }) {
   const [editSubmitting, setEditSubmitting] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [editForm, setEditForm] = useState(createEditForm(null));
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailUser, setDetailUser] = useState(null);
 
   const [recentOpen, setRecentOpen] = useState(false);
   const [recentItems, setRecentItems] = useState([]);
   const [recentLoading, setRecentLoading] = useState(false);
   const [recentUserName, setRecentUserName] = useState('');
+  const [verifyOpen, setVerifyOpen] = useState(false);
+  const [verifyingUser, setVerifyingUser] = useState(null);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpTimer, setOtpTimer] = useState(0);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifySubmitting, setVerifySubmitting] = useState(false);
 
   const getErrorMessage = (error, fallback) => {
     const payload = error?.response?.data;
     if (typeof payload === 'string') return payload;
     if (payload?.error) return payload.error;
     return fallback || error?.message || 'Request failed';
+  };
+
+  const formatOtpTimer = (value) => {
+    const clamped = Math.max(0, Number(value) || 0);
+    const minutes = String(Math.floor(clamped / 60)).padStart(2, '0');
+    const seconds = String(clamped % 60).padStart(2, '0');
+    return `${minutes}:${seconds}`;
   };
 
   const loadUsers = async () => {
@@ -74,6 +93,16 @@ function UsersPanel({ currentUser, onSessionUserUpdate }) {
   useEffect(() => {
     loadUsers();
   }, []);
+
+  useEffect(() => {
+    if (otpTimer <= 0) return undefined;
+    const timer = window.setInterval(() => {
+      setOtpTimer((current) => (current > 0 ? current - 1 : 0));
+    }, 1000);
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [otpTimer]);
 
   const filteredUsers = users.filter((user) => {
     const term = search.trim().toLowerCase();
@@ -131,6 +160,97 @@ function UsersPanel({ currentUser, onSessionUserUpdate }) {
       toast.error(getErrorMessage(error, 'Failed to load recent viewed cars.'));
     } finally {
       setRecentLoading(false);
+    }
+  };
+
+  const sendEmailOtp = async (email) => {
+    if (!email) {
+      toast.error('User email is missing.');
+      return;
+    }
+
+    setSendingOtp(true);
+    try {
+      await authApi.post('/auth/send-otp', { email });
+      setOtpTimer(OTP_EXPIRY_SECONDS);
+      toast.success('OTP sent to user email.');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Failed to send OTP.'));
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const openVerifyEmail = async (user) => {
+    setVerifyingUser(user);
+    setOtpCode('');
+    setVerifyOpen(true);
+    setOtpTimer(0);
+    await sendEmailOtp(user?.email);
+  };
+
+  const closeVerifyEmailModal = () => {
+    setVerifyOpen(false);
+    setVerifyingUser(null);
+    setOtpCode('');
+    setOtpTimer(0);
+  };
+
+  const handleVerifyEmailSubmit = async (event) => {
+    event.preventDefault();
+    const email = verifyingUser?.email;
+    const userId = verifyingUser?._id || verifyingUser?.id;
+    if (!email || !userId) return;
+
+    setVerifySubmitting(true);
+    try {
+      const response = await authApi.post('/auth/verify-otp', {
+        email,
+        otp: otpCode.trim(),
+      });
+
+      const responseUser = response?.data?.user;
+      const responseToken = response?.data?.token;
+
+      toast.success('Email verified successfully.');
+      closeVerifyEmailModal();
+      loadUsers();
+
+      const currentUserId = currentUser?.id || currentUser?._id;
+      const responseUserId = responseUser?.id || responseUser?._id;
+      if (currentUserId && responseUserId && currentUserId === responseUserId && responseToken) {
+        const nextSession = {
+          token: responseToken,
+          user: {
+            ...currentUser,
+            ...responseUser,
+            id: responseUserId,
+          },
+        };
+        persistSession(nextSession);
+        if (onSessionUserUpdate) {
+          onSessionUserUpdate(nextSession.user);
+        }
+      }
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Failed to verify OTP.'));
+    } finally {
+      setVerifySubmitting(false);
+    }
+  };
+
+  const openUserDetails = async (userId) => {
+    setDetailOpen(true);
+    setDetailLoading(true);
+    setDetailUser(null);
+    try {
+      const response = await api.get(`/users/${userId}`);
+      setDetailUser(response.data || null);
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Failed to load user details.'));
+      setDetailOpen(false);
+    } finally {
+      setDetailLoading(false);
     }
   };
 
@@ -271,6 +391,13 @@ function UsersPanel({ currentUser, onSessionUserUpdate }) {
                         <div className="flex flex-wrap gap-2">
                           <button
                             type="button"
+                            onClick={() => openUserDetails(userId)}
+                            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                          >
+                            View
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => openEdit(userId)}
                             className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-400"
                           >
@@ -290,6 +417,19 @@ function UsersPanel({ currentUser, onSessionUserUpdate }) {
                           >
                             Delete
                           </button>
+                          {user.is_email_verified ? (
+                            <span className="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                              Email Verified
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => openVerifyEmail(user)}
+                              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500"
+                            >
+                              Verify Email
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -436,6 +576,85 @@ function UsersPanel({ currentUser, onSessionUserUpdate }) {
             </div>
           </form>
         )}
+      </Modal>
+
+      <Modal open={detailOpen} title="User Details" onClose={() => setDetailOpen(false)} widthClass="max-w-3xl">
+        {detailLoading ? <p className="text-sm text-slate-500">Loading user details...</p> : null}
+        {!detailLoading && detailUser ? (
+          <div className="grid gap-3 md:grid-cols-2 text-sm">
+            <p><span className="font-semibold text-slate-700">Name:</span> {detailUser.name || 'N/A'}</p>
+            <p><span className="font-semibold text-slate-700">Email:</span> {detailUser.email || 'N/A'}</p>
+            <p><span className="font-semibold text-slate-700">Phone:</span> {detailUser.phone || 'N/A'}</p>
+            <p><span className="font-semibold text-slate-700">Role:</span> {detailUser.role || 'N/A'}</p>
+            <p><span className="font-semibold text-slate-700">City:</span> {detailUser.city || 'N/A'}</p>
+            <p><span className="font-semibold text-slate-700">PIN:</span> {detailUser.pin || 'N/A'}</p>
+            <p className="md:col-span-2"><span className="font-semibold text-slate-700">Address:</span> {detailUser.address || 'N/A'}</p>
+            <p><span className="font-semibold text-slate-700">Email Verified:</span> {detailUser.is_email_verified ? 'Yes' : 'No'}</p>
+            <p><span className="font-semibold text-slate-700">Phone Verified:</span> {detailUser.is_phone_verified ? 'Yes' : 'No'}</p>
+            <p><span className="font-semibold text-slate-700">Created:</span> {detailUser.createdAt ? new Date(detailUser.createdAt).toLocaleString() : 'N/A'}</p>
+            <p><span className="font-semibold text-slate-700">Updated:</span> {detailUser.updatedAt ? new Date(detailUser.updatedAt).toLocaleString() : 'N/A'}</p>
+          </div>
+        ) : null}
+      </Modal>
+
+      <Modal
+        open={verifyOpen}
+        title={`Verify Email${verifyingUser?.name ? ` - ${verifyingUser.name}` : ''}`}
+        onClose={closeVerifyEmailModal}
+        widthClass="max-w-lg"
+      >
+        <form onSubmit={handleVerifyEmailSubmit} className="space-y-3">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+            <p>
+              <span className="font-semibold text-slate-900">Email:</span> {verifyingUser?.email || 'N/A'}
+            </p>
+            <p className="mt-1">
+              <span className="font-semibold text-slate-900">OTP expires in:</span>{' '}
+              <span className={otpTimer > 0 ? 'text-blue-700' : 'text-rose-600'}>
+                {formatOtpTimer(otpTimer)}
+              </span>
+            </p>
+          </div>
+
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-slate-700">OTP Code</span>
+            <input
+              name="otp"
+              value={otpCode}
+              onChange={(event) => setOtpCode(event.target.value)}
+              placeholder="Enter 6-digit OTP"
+              required
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+          </label>
+
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => sendEmailOtp(verifyingUser?.email)}
+              disabled={sendingOtp}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {sendingOtp ? 'Sending OTP...' : 'Resend OTP'}
+            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={closeVerifyEmailModal}
+                className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={verifySubmitting}
+                className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {verifySubmitting ? 'Verifying...' : 'Verify OTP'}
+              </button>
+            </div>
+          </div>
+        </form>
       </Modal>
 
       <Modal open={recentOpen} title={`Recent Car Views - ${recentUserName}`} onClose={() => setRecentOpen(false)} widthClass="max-w-4xl">
