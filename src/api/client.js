@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const configuredBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api/v1').trim();
+const DEFAULT_REMOTE_API_BASE_URL = 'https://used-car-selling-backend.vercel.app/api/v1';
+const configuredBaseUrl = (import.meta.env.VITE_API_BASE_URL || DEFAULT_REMOTE_API_BASE_URL).trim();
 const normalizedBaseUrl = configuredBaseUrl.replace(/\/+$/, '');
 const apiRoot =
   normalizedBaseUrl.replace(/\/api\/v1$/i, '') || (normalizedBaseUrl.startsWith('/') ? '' : normalizedBaseUrl);
