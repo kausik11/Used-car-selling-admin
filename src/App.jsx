@@ -7,9 +7,18 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 
+const THEME_STORAGE_KEY = 'admin_theme_preference';
+
+const getInitialTheme = () => {
+  if (typeof window === 'undefined') return 'light';
+  const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+  return savedTheme === 'dark' ? 'dark' : 'light';
+};
+
 function App() {
   const navigate = useNavigate();
   const [session, setSession] = useState(() => readSession());
+  const [theme, setTheme] = useState(getInitialTheme);
 
   const clearAndRedirectToLogin = (message) => {
     clearSession();
@@ -100,6 +109,15 @@ function App() {
     };
   }, [session?.token]);
 
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+    }
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    }
+  }, [theme]);
+
   return (
     <Routes>
       <Route
@@ -109,7 +127,15 @@ function App() {
       <Route element={<ProtectedRoute session={session} />}>
         <Route
           path="/"
-          element={<DashboardPage session={session} onLogout={handleLogout} onSessionUserUpdate={handleSessionUserUpdate} />}
+          element={
+            <DashboardPage
+              session={session}
+              onLogout={handleLogout}
+              onSessionUserUpdate={handleSessionUserUpdate}
+              theme={theme}
+              onThemeChange={setTheme}
+            />
+          }
         />
       </Route>
       <Route path="*" element={<Navigate to={session ? '/' : '/login'} replace />} />

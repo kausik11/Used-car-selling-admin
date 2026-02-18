@@ -130,7 +130,7 @@ function Topbar({ onToggleSidebar, currentUser, onLogout, onSessionUserUpdate })
   };
 
   return (
-    <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
         {/* <button
           type="button"
@@ -139,12 +139,12 @@ function Topbar({ onToggleSidebar, currentUser, onLogout, onSessionUserUpdate })
         >
           Toggle Sidebar
         </button> */}
-        <div className="flex min-w-[260px] flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-          <span className="text-slate-400">Search</span>
+        <div className="flex min-w-[260px] flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">
+          <span className="text-slate-400 dark:text-slate-500">Search</span>
           <input
             type="text"
             placeholder="Search cars, users, services"
-            className="w-full bg-transparent text-sm text-slate-700 outline-none"
+            className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 dark:text-slate-200 dark:placeholder:text-slate-500"
           />
         </div>
 
@@ -153,34 +153,34 @@ function Topbar({ onToggleSidebar, currentUser, onLogout, onSessionUserUpdate })
             <button
               type="button"
               onClick={() => setProfileOpen((prev) => !prev)}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left hover:bg-slate-50"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
             >
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-100 font-semibold text-blue-700">{initial}</span>
               <div className="leading-tight">
-                <p className="text-sm font-semibold text-slate-900">{currentUser?.name || 'Admin user'}</p>
-                <p className="text-xs text-slate-500">{currentUser?.role || 'admin'}</p>
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{currentUser?.name || 'Admin user'}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{currentUser?.role || 'admin'}</p>
               </div>
             </button>
 
             {profileOpen ? (
-              <div className="absolute right-0 z-20 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-3 shadow-xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">User Details</p>
+              <div className="absolute right-0 z-20 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">User Details</p>
                 <div className="mt-2 space-y-2 text-sm">
                   <p>
-                    <span className="font-semibold text-slate-700">Name:</span>{' '}
-                    <span className="text-slate-900">{currentUser?.name || 'N/A'}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">Name:</span>{' '}
+                    <span className="text-slate-900 dark:text-slate-100">{currentUser?.name || 'N/A'}</span>
                   </p>
                   <p>
-                    <span className="font-semibold text-slate-700">Email:</span>{' '}
-                    <span className="text-slate-900">{currentUser?.email || 'N/A'}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">Email:</span>{' '}
+                    <span className="text-slate-900 dark:text-slate-100">{currentUser?.email || 'N/A'}</span>
                   </p>
                   <p>
-                    <span className="font-semibold text-slate-700">Phone:</span>{' '}
-                    <span className="text-slate-900">{currentUser?.phone || 'N/A'}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">Phone:</span>{' '}
+                    <span className="text-slate-900 dark:text-slate-100">{currentUser?.phone || 'N/A'}</span>
                   </p>
                   <p>
-                    <span className="font-semibold text-slate-700">Role:</span>{' '}
-                    <span className="capitalize text-slate-900">{currentUser?.role || 'N/A'}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">Role:</span>{' '}
+                    <span className="capitalize text-slate-900 dark:text-slate-100">{currentUser?.role || 'N/A'}</span>
                   </p>
                 </div>
                 <button
@@ -197,7 +197,7 @@ function Topbar({ onToggleSidebar, currentUser, onLogout, onSessionUserUpdate })
           <button
             type="button"
             onClick={onLogout}
-            className="h-11 rounded-xl border border-slate-200 px-4 text-sm font-medium text-slate-700 hover:bg-slate-100"
+            className="h-11 rounded-xl border border-slate-200 px-4 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Logout
           </button>
