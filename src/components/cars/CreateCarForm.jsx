@@ -87,6 +87,82 @@ function CreateCarForm({ compact = false, onSuccess, onCancel, mode = 'create', 
     setForm((current) => ({ ...current, [name]: checked }));
   };
 
+  const addCustomField = (sectionKey) => {
+    setForm((current) => ({
+      ...current,
+      [sectionKey]: [...(Array.isArray(current[sectionKey]) ? current[sectionKey] : []), { title: '', value: '' }],
+    }));
+  };
+
+  const updateCustomField = (sectionKey, index, key, value) => {
+    setForm((current) => ({
+      ...current,
+      [sectionKey]: (Array.isArray(current[sectionKey]) ? current[sectionKey] : []).map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [key]: value } : item,
+      ),
+    }));
+  };
+
+  const removeCustomField = (sectionKey, index) => {
+    setForm((current) => ({
+      ...current,
+      [sectionKey]: (Array.isArray(current[sectionKey]) ? current[sectionKey] : []).filter(
+        (_, itemIndex) => itemIndex !== index,
+      ),
+    }));
+  };
+
+  const renderCustomFieldBlock = (sectionKey, title) => {
+    const fields = Array.isArray(form[sectionKey]) ? form[sectionKey] : [];
+
+    return (
+      <div className="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-slate-800">{title}</p>
+          <button
+            type="button"
+            onClick={() => addCustomField(sectionKey)}
+            className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500"
+          >
+            + Add custom field
+          </button>
+        </div>
+
+        {fields.length === 0 ? (
+          <p className="text-xs text-slate-500">No custom fields added.</p>
+        ) : (
+          <div className="space-y-2">
+            {fields.map((field, index) => (
+              <div key={`${sectionKey}-${index}`} className="grid gap-2 md:grid-cols-[1fr_1fr_auto]">
+                <input
+                  type="text"
+                  value={field?.title || ''}
+                  onChange={(event) => updateCustomField(sectionKey, index, 'title', event.target.value)}
+                  placeholder="Title"
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                />
+                <input
+                  type="text"
+                  value={field?.value || ''}
+                  onChange={(event) => updateCustomField(sectionKey, index, 'value', event.target.value)}
+                  placeholder="Value"
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeCustomField(sectionKey, index)}
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const updateMediaItem = (id, key, value) => {
     setMediaItems((current) =>
       current.map((item) => {
@@ -238,6 +314,18 @@ function CreateCarForm({ compact = false, onSuccess, onCancel, mode = 'create', 
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormSection title="Car Listing" subtitle="Primary listing fields">
           <TextField label="Title" name="title" value={form.title} onChange={handleChange} required />
+          <label className="md:col-span-2 block">
+            <span className="mb-1 block text-sm font-medium text-slate-700">Description</span>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              rows={4}
+              placeholder="Optional car description"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            />
+          </label>
+          {renderCustomFieldBlock('listing_custom_fields', 'Car Listing Custom Properties')}
           <TextField label="Brand" name="brand" value={form.brand} onChange={handleChange} required />
           <TextField label="Model" name="model" value={form.model} onChange={handleChange} required />
           <TextField label="Variant" name="variant" value={form.variant} onChange={handleChange} required />
@@ -378,6 +466,7 @@ function CreateCarForm({ compact = false, onSuccess, onCancel, mode = 'create', 
             <CheckboxField label="Alloy Wheels" name="alloy_wheels" checked={form.alloy_wheels} onChange={handleToggle} />
             <CheckboxField label="Wheel Cover" name="wheel_cover" checked={form.wheel_cover} onChange={handleToggle} />
           </div>
+          {renderCustomFieldBlock('dimensions_custom_fields', 'DimensionsCapacity Custom Properties')}
         </FormSection>
 
         <FormSection title="Engine and Fuel" subtitle="EngineTransmission and FuelPerformance fields">
@@ -422,6 +511,7 @@ function CreateCarForm({ compact = false, onSuccess, onCancel, mode = 'create', 
             <CheckboxField label="Turbocharger" name="turbocharger" checked={form.turbocharger} onChange={handleToggle} />
             <CheckboxField label="Mild Hybrid" name="mild_hybrid" checked={form.mild_hybrid} onChange={handleToggle} />
           </div>
+          {renderCustomFieldBlock('engine_custom_fields', 'EngineTransmission Custom Properties')}
         </FormSection>
 
         <FormSection title="Suspension and Booking" subtitle="SuspensionSteeringBrakes and BookingPolicy fields">
@@ -837,6 +927,7 @@ function CreateCarForm({ compact = false, onSuccess, onCancel, mode = 'create', 
               onChange={handleToggle}
             />
           </div>
+          {renderCustomFieldBlock('features_custom_fields', 'CarFeatures Custom Properties')}
         </FormSection>
 
         <div className="flex flex-wrap gap-3">

@@ -11,6 +11,26 @@ const splitCsv = (value) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+const normalizeCustomFields = (items) =>
+  (Array.isArray(items) ? items : [])
+    .map((item) => ({
+      title: String(item?.title || '').trim(),
+      value: String(item?.value || '').trim(),
+    }))
+    .filter((item) => item.title && item.value);
+
+const getFeaturesCustomFields = (car) => {
+  const customFieldsBySection = [
+    car?.features?.safety?.custom,
+    car?.features?.comfort?.custom,
+    car?.features?.entertainment?.custom,
+    car?.features?.interior?.custom,
+    car?.features?.exterior?.custom,
+  ];
+
+  return customFieldsBySection.find((items) => Array.isArray(items) && items.length > 0) || [];
+};
+
 const getDefaultFeatures = () => ({
   safety: {
     abs: true,
@@ -176,6 +196,7 @@ const getDefaultFeatures = () => ({
 
 const buildFeatures = (form) => {
   const defaults = getDefaultFeatures();
+  const featureCustomFields = normalizeCustomFields(form.features_custom_fields);
 
   return {
     ...defaults,
@@ -190,6 +211,7 @@ const buildFeatures = (form) => {
       parking_sensors: form.features_parking_sensors,
       traction_control: form.features_traction_control,
       hill_assist: form.features_hill_assist,
+      custom: featureCustomFields,
     },
     comfort: {
       ...defaults.comfort,
@@ -234,6 +256,7 @@ export const buildCreateCarPayload = (form) => ({
   status: form.status,
   visibility: form.visibility,
   title: form.title,
+  description: form.description?.trim() || undefined,
   brand: form.brand,
   model: form.model,
   variant: form.variant,
@@ -255,6 +278,7 @@ export const buildCreateCarPayload = (form) => ({
   reasons_to_buy: splitCsv(form.reasons_to_buy),
   highlights: splitCsv(form.highlights),
   overall_score: toNumber(form.overall_score, 0),
+  custom: normalizeCustomFields(form.listing_custom_fields),
   dimensions_capacity: {
     ground_clearance_mm: toNumber(form.ground_clearance_mm),
     boot_space_litres: toNumber(form.boot_space_litres),
@@ -271,7 +295,7 @@ export const buildCreateCarPayload = (form) => ({
     rear_tyre_size: form.rear_tyre_size,
     alloy_wheels: form.alloy_wheels,
     wheel_cover: form.wheel_cover,
-    custom: [],
+    custom: normalizeCustomFields(form.dimensions_custom_fields),
   },
   engine_transmission: {
     drivetrain: form.drivetrain,
@@ -283,7 +307,7 @@ export const buildCreateCarPayload = (form) => ({
     valves_per_cylinder: toNumber(form.valves_per_cylinder),
     turbocharger: form.turbocharger,
     mild_hybrid: form.mild_hybrid,
-    custom: [],
+    custom: normalizeCustomFields(form.engine_custom_fields),
   },
   fuel_performance: {
     mileage_arai_kmpl: toNumber(form.mileage_arai_kmpl),
@@ -347,13 +371,13 @@ export const buildCreateCarPayload = (form) => ({
     amount: toNumber(form.price_amount),
     currency: form.price_currency,
   },
-  custom: [],
 });
 
 export const defaultCreateCarForm = {
   status: '',
   visibility: '',
   title: '',
+  description: '',
   brand: '',
   model: '',
   variant: '',
@@ -373,6 +397,7 @@ export const defaultCreateCarForm = {
   overall_score: '',
   reasons_to_buy: '',
   highlights: '',
+  listing_custom_fields: [],
   delivery_available: false,
   test_drive_available: false,
   price_amount: '',
@@ -391,6 +416,7 @@ export const defaultCreateCarForm = {
   number_of_doors: '',
   alloy_wheels: false,
   wheel_cover: false,
+  dimensions_custom_fields: [],
 
   drivetrain: '',
   gearbox: '',
@@ -401,6 +427,7 @@ export const defaultCreateCarForm = {
   valves_per_cylinder: '',
   turbocharger: false,
   mild_hybrid: false,
+  engine_custom_fields: [],
 
   mileage_arai_kmpl: '',
   max_power: '',
@@ -474,6 +501,7 @@ export const defaultCreateCarForm = {
   features_roof_rails: false,
   features_rear_wiper: false,
   features_rear_defogger: false,
+  features_custom_fields: [],
 };
 
 const toInputDate = (value) => {
@@ -495,6 +523,7 @@ export const mapCarToForm = (car) => {
     status: car.status || '',
     visibility: car.visibility || '',
     title: car.title || '',
+    description: car.description || '',
     brand: car.brand || '',
     model: car.model || '',
     variant: car.variant || '',
@@ -514,6 +543,7 @@ export const mapCarToForm = (car) => {
     overall_score: car.overall_score !== undefined ? String(car.overall_score) : '',
     reasons_to_buy: toCsv(car.reasons_to_buy),
     highlights: toCsv(car.highlights),
+    listing_custom_fields: normalizeCustomFields(car.custom),
     delivery_available: bool(car.delivery_available),
     test_drive_available: bool(car.test_drive_available),
     price_amount: car.price?.amount !== undefined ? String(car.price.amount) : '',
@@ -559,6 +589,7 @@ export const mapCarToForm = (car) => {
         : '',
     alloy_wheels: bool(car.dimensions_capacity?.alloy_wheels),
     wheel_cover: bool(car.dimensions_capacity?.wheel_cover),
+    dimensions_custom_fields: normalizeCustomFields(car.dimensions_capacity?.custom),
 
     drivetrain: car.engine_transmission?.drivetrain || '',
     gearbox: car.engine_transmission?.gearbox || '',
@@ -581,6 +612,7 @@ export const mapCarToForm = (car) => {
         : '',
     turbocharger: bool(car.engine_transmission?.turbocharger),
     mild_hybrid: bool(car.engine_transmission?.mild_hybrid),
+    engine_custom_fields: normalizeCustomFields(car.engine_transmission?.custom),
 
     mileage_arai_kmpl:
       car.fuel_performance?.mileage_arai_kmpl !== undefined
@@ -663,5 +695,6 @@ export const mapCarToForm = (car) => {
     features_roof_rails: bool(car.features?.exterior?.roof_rails),
     features_rear_wiper: bool(car.features?.exterior?.rear_wiper),
     features_rear_defogger: bool(car.features?.exterior?.rear_defogger),
+    features_custom_fields: normalizeCustomFields(getFeaturesCustomFields(car)),
   };
 };
